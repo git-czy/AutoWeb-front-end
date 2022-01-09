@@ -1,5 +1,3 @@
-
-
 import {createRouter, createWebHistory} from "vue-router";
 
 // 路由信息
