@@ -1,6 +1,8 @@
 <template>
   <el-container>
-    <el-header height="100px"></el-header>
+    <el-header height="100px">
+      <nav-header></nav-header>
+    </el-header>
     <el-main class="main">
       <el-card shadow="always" class="main-card">
         <!--步骤条-->
@@ -26,11 +28,10 @@
                 <el-upload
                     class="upload-demo"
                     drag
-                    action="https://jsonplaceholder.typicode.com/posts/"
                     multiple
                 >
                   <el-icon class="el-icon--upload">
-                    <upload-filled/>
+                    <uploadFilled/>
                   </el-icon>
                   <div class="el-upload__text">
                     Drop file here or <em>click to upload</em>
@@ -93,7 +94,7 @@
               </template>
 
             </el-form>
-            <p>正在部署中....</p>
+            <p v-if="active===3">正在部署中....</p>
             <el-result
                 icon="success"
                 title="部署成功"
@@ -101,7 +102,7 @@
                 v-if="active===4"
             >
               <template #extra>
-                <el-button type="primary" >前往我的网站</el-button>
+                <el-button type="primary">前往我的网站</el-button>
               </template>
             </el-result>
           </el-card>
@@ -110,7 +111,7 @@
         <el-row justify="center">
           <el-button v-if="showPre" @click="pre">上一步</el-button>
           <el-button v-if="showNext" @click="next">下一步</el-button>
-          <el-button v-if="showSubmit" type="primary" @click="submit">确认</el-button>
+          <el-button v-if="showSubmit" type="primary" @click="submit" >确认</el-button>
           <div style="height: 44px;line-height:44px" v-if="active===4"></div>
         </el-row>
       </el-card>
@@ -120,56 +121,55 @@
   </el-container>
 </template>
 
-<script>
-export default {
-  name: "home",
-  data() {
-    return {
-      active: 0,
-      showPre: false,
-      showNext: true,
-      showSubmit: false,
-      webConfig: {
-        projectType: ""
-      },
-      webConnect: {
-        user: '',
-        password: '',
-        port: '',
-      },
-      webExtra: {
-        ssl: false
-      },
-    }
-  },
-  watch: {
-    active(n, o) {
-      if (n !== 4) {
-        this.showNext = n !== 3;
-        this.showPre = n !== 0;
-      } else {
-        this.showNext = false
-        this.showPre = false
-      }
-      if (n === 3) this.showSubmit = true
-    }
-  },
-  methods: {
-    next() {
-      if (this.active < 3) this.active++
-    },
-    pre() {
-      if (this.active > 0) this.active--
-    },
-    submit() {
-      this.active = 4
-      this.showSubmit = false
-    }
 
+
+<script setup>
+import {ref, reactive, watch} from 'vue'
+import {UploadFilled} from "@element-plus/icons-vue";
+
+const active = ref(0)
+const showPre = ref(false)
+const showNext = ref(true)
+const showSubmit = ref(false)
+
+const webConfig = reactive({
+  projectType: ''
+})
+const webConnect = reactive({
+  user: '',
+  password: '',
+  port: ''
+})
+const webExtra = reactive({
+  ssl: false
+})
+
+watch(active, (active, prevActive) => {
+  if (active !== 4) {
+    showNext.value = active !== 2;
+    showPre.value = active !== 0;
+  } else {
+    showNext.value = false
+    showPre.value = false
   }
-}
-</script>
+  if (active === 2) showSubmit.value = true
+})
 
+const next = () => {
+  if (active.value < 3) active.value++
+}
+
+const pre = () => {
+  if (active.value > 0) active.value--
+}
+
+const submit = () => {
+  active.value = 4
+  showSubmit.value = false
+
+}
+
+</script>
 <style scoped lang="scss">
 
 .full-width {
@@ -177,6 +177,7 @@ export default {
 }
 
 .main {
+  padding-top: 0px;
   display: flex;
   justify-content: center;
 }
