@@ -1,17 +1,31 @@
 import {createRouter, createWebHistory} from "vue-router";
 
+import LAYOUT from "@/layout/index.vue";
 // 路由信息
 const routes = [
     {
         path: "/",
-        name: "Index",
-        component: () => import('@/page/home/index.vue'),
+        redirect: {name: 'home'},
+        component: LAYOUT,
+        children: [
+            {
+                path: "home",
+                name: "home",
+                component: () => import('@/page/home/index.vue'),
+            },
+            {
+                path: "action",
+                name: "action",
+                component: () => import('@/page/action/index.vue'),
+            },
+            {
+                path: "about",
+                name: "about",
+                component: () => import('@/page/about/index.vue'),
+            },
+        ]
     },
-    // {
-    //     path: "/test",
-    //     name: "test",
-    //     component:  () => import('../views/index/test.vue'),
-    // },
+
 ];
 
 // 导出路由

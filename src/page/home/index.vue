@@ -1,213 +1,125 @@
 <template>
-  <el-container>
-    <el-header height="100px">
-      <nav-header></nav-header>
-    </el-header>
-    <el-main class="main">
-      <el-card shadow="always" class="main-card">
-        <!--步骤条-->
-        <el-row justify="center">
-          <el-steps :active="active" finish-status="success" align-center>
-            <el-step title="Web项目配置"></el-step>
-            <el-step title="服务器连接配置"></el-step>
-            <el-step title="额外选项"></el-step>
-            <el-step title="完成"></el-step>
-          </el-steps>
+
+  <div class="main">
+
+    <el-row class="animate__bounce animate__animated block logo">
+      AutoWeb
+    </el-row>
+
+    <el-row justify="space-around" class="block action">
+      <el-col :span="7" class="part" @click="redirectAction">
+        <el-row class="center">
+          <el-col :span="4">
+            <i class="fa fa-play-circle-o"/>
+          </el-col>
+          <el-col :span="16">
+            开 始
+          </el-col>
         </el-row>
-        <!--编辑内容-->
-        <el-row justify="center">
-          <el-card class="body-card">
-            <el-form :model="webConfig" label-position="right" label-width="80px" v-if="active===0">
-              <el-form-item label="项目类型">
-                <el-select v-model="webConfig.projectType" placeholder="请选择项目类型">
-                  <el-option label="Python" value="python"></el-option>
-                  <!--                  <el-option label="Java" value="java"></el-option>-->
-                </el-select>
-              </el-form-item>
-              <el-form-item label="项目代码">
-                <el-upload
-                    class="upload-demo"
-                    drag
-                    multiple
-                >
-                  <el-icon class="el-icon--upload">
-                    <uploadFilled/>
-                  </el-icon>
-                  <div class="el-upload__text">
-                    Drop file here or <em>click to upload</em>
-                  </div>
-                  <template #tip>
-                    <div class="el-upload__tip">
-                      jpg/png files with a size less than 500kb
-                    </div>
-                  </template>
-                </el-upload>
-              </el-form-item>
-            </el-form>
-            <el-form :model="webConnect" label-position="right" label-width="80px" v-if="active===1">
-              <el-form-item label="用户名">
-                <el-input placeholder="请输入ssh连接用户名" v-model="webConnect.user"></el-input>
-              </el-form-item>
-              <el-form-item label="密码">
-                <el-input placeholder="请输入ssh连接密码" v-model="webConnect.password"></el-input>
-              </el-form-item>
-              <el-form-item label="端口">
-                <el-input placeholder="请输入ssh连接端口" v-model="webConnect.port"></el-input>
-              </el-form-item>
-            </el-form>
-            <el-form :model="webExtra" label-position="right" label-width="80px" v-if="active===2">
-              <el-form-item label="开启ssl" prop="delivery">
-                <el-switch v-model="webExtra.ssl"></el-switch>
-              </el-form-item>
-              <template v-if="webExtra.ssl">
-                <el-form-item label="网站域名">
-                  <el-input placeholder="请输入需要配置ssl的域名" v-model="webExtra.domain"></el-input>
-                </el-form-item>
+      </el-col>
 
-                <el-form-item label="ssl证书pem文件">
-                  <el-upload
-                      class="upload-demo"
-                      :limit="1"
-                      accept=".pem"
-                  >
-                    <el-button type="primary">点击上传</el-button>
-                    <template #tip>
-                      <div class="el-upload__tip">
-                        jpg/png files with a size less than 500kb
-                      </div>
-                    </template>
-                  </el-upload>
-                </el-form-item>
-                <el-form-item label="ssl证书Key文件">
-                  <el-upload
-                      class="upload-demo"
-                      :limit="1"
-                  >
-                    <el-button type="primary">点击上传</el-button>
-                    <template #tip>
-                      <div class="el-upload__tip">
-                        jpg/png files with a size less than 500kb
-                      </div>
-                    </template>
-                  </el-upload>
-                </el-form-item>
-              </template>
-
-            </el-form>
-            <p v-if="active===3">正在部署中....</p>
-            <el-result
-                icon="success"
-                title="部署成功"
-                sub-title="电机按钮前往你的网站看看吧"
-                v-if="active===4"
-            >
-              <template #extra>
-                <el-button type="primary">前往我的网站</el-button>
-              </template>
-            </el-result>
-          </el-card>
+      <el-col :span="7" class="part" @click="redirectAbout">
+        <el-row class="center">
+          <el-col :span="4">
+            <i class="fa fa-eye"/>
+          </el-col>
+          <el-col :span="16">
+            查看文档
+          </el-col>
         </el-row>
-        <!--确认按钮-->
-        <el-row justify="center">
-          <el-button v-if="showPre" @click="pre">上一步</el-button>
-          <el-button v-if="showNext" @click="next">下一步</el-button>
-          <el-button v-if="showSubmit" type="primary" @click="submit" >确认</el-button>
-          <div style="height: 44px;line-height:44px" v-if="active===4"></div>
+      </el-col>
+
+      <el-col :span="7" class="part" style="background-color: #f6f6f6;">
+        <el-row class="center">
+          <el-col :span="4">
+            <i class="fa fa-github"/>
+          </el-col>
+          <el-col :span="16">
+            GitHub
+          </el-col>
         </el-row>
-      </el-card>
+      </el-col>
 
-    </el-main>
+    </el-row>
 
-  </el-container>
+    <el-row class="block">
+      一个简单快速易用的WEB应用自动部署平台
+    </el-row>
+  </div>
+
+
 </template>
 
-
-
 <script setup>
-import {ref, reactive, watch} from 'vue'
-import {UploadFilled} from "@element-plus/icons-vue";
 
-const active = ref(0)
-const showPre = ref(false)
-const showNext = ref(true)
-const showSubmit = ref(false)
+import router from "../../router";
+import {watch} from "vue";
 
-const webConfig = reactive({
-  projectType: ''
-})
-const webConnect = reactive({
-  user: '',
-  password: '',
-  port: ''
-})
-const webExtra = reactive({
-  ssl: false
-})
 
-watch(active, (active, prevActive) => {
-  if (active !== 4) {
-    showNext.value = active !== 2;
-    showPre.value = active !== 0;
-  } else {
-    showNext.value = false
-    showPre.value = false
-  }
-  if (active === 2) showSubmit.value = true
-})
-
-const next = () => {
-  if (active.value < 3) active.value++
+function redirectAction() {
+  router.push({path: '/action'})
 }
 
-const pre = () => {
-  if (active.value > 0) active.value--
-}
-
-const submit = () => {
-  active.value = 4
-  showSubmit.value = false
-
+function redirectAbout() {
+  router.push({path: '/about'})
 }
 
 </script>
-<style scoped lang="scss">
 
-.full-width {
-  width: 100%;
-}
-
+<style lang="scss" scoped>
 .main {
-  padding-top: 0px;
-  display: flex;
-  justify-content: center;
+  display: inherit;
+  flex-direction: column;
+  align-content: center;
+  flex-wrap: wrap;
+  justify-content: space-evenly;
+  align-items: center;
 }
 
-.main-card {
-  width: 70%;
-  padding-top: 20px;
-
-  .el-input {
-    width: 70%;
-  }
-
-  .el-steps {
-    width: 70%;
-  }
-
-  .el-button {
-    margin-top: 12px
-  }
-}
-
-.body-card {
-  width: 55%;
-  height: 400px;
-  padding-top: 20px;
+.block {
   margin-top: 20px;
+  margin-bottom: 20px;
 }
 
+.center {
+  display: flex;
+  text-align: center;
+  justify-content: center;
+  justify-items: center;
+  align-items: center;
+  align-content: center;
+}
 
-.step-button {
-  margin-top: 12px
+.inline-block {
+  display: inline;
+  text-align: center;
+}
+
+.description {
+  margin-top: 20px;
+  margin-bottom: 20px;
+}
+
+.action {
+  width: 500px;
+  line-height: 45px;
+
+  .part {
+    cursor: pointer;
+    border-radius: 20px;
+    border: 1px solid var(--el-border-color-base);
+    font-size: 20px;
+  }
+
+}
+
+.logo {
+  margin-top: 20px;
+  height: auto;
+  width: auto;
+  line-height: 80px;
+  font-size: 50px;
+  text-align: center;
+  letter-spacing: 20px;
 }
 </style>
