@@ -1,6 +1,6 @@
 <template>
 
-  <el-card shadow="always" class="main-card animate__fadeIn animate__animated" >
+  <el-card shadow="always" class="main-card animate__fadeIn animate__animated">
     <!--步骤条-->
     <el-row justify="center">
       <el-steps :active="active" finish-status="success" align-center>
@@ -13,6 +13,7 @@
     <!--编辑内容-->
     <el-row justify="center">
       <el-card class="body-card">
+        <!--        web项目配置-->
         <el-form :model="webConfig" label-position="right" label-width="80px" v-if="active===0">
           <el-form-item label="项目类型">
             <el-select v-model="webConfig.projectType" placeholder="请选择项目类型">
@@ -21,25 +22,60 @@
             </el-select>
           </el-form-item>
           <el-form-item label="项目代码">
-            <el-upload
-                class="upload-demo"
-                drag
-                multiple
-            >
-              <el-icon class="el-icon--upload">
-                <uploadFilled/>
-              </el-icon>
-              <div class="el-upload__text">
-                Drop file here or <em>click to upload</em>
-              </div>
-              <template #tip>
-                <div class="el-upload__tip">
-                  jpg/png files with a size less than 500kb
-                </div>
-              </template>
-            </el-upload>
+            <!--                        <el-upload-->
+            <!--                            class="upload-demo"-->
+            <!--                            drag-->
+            <!--                            multiple-->
+            <!--                        >-->
+            <!--                          <el-icon class="el-icon&#45;&#45;upload">-->
+            <!--                            <uploadFilled/>-->
+            <!--                          </el-icon>-->
+            <!--                          <div class="el-upload__text">-->
+            <!--                            Drop file here or <em>click to upload</em>-->
+            <!--                          </div>-->
+            <!--                          <template #tip>-->
+            <!--                            <div class="el-upload__tip">-->
+            <!--                              jpg/png files with a size less than 500kb-->
+            <!--                            </div>-->
+            <!--                          </template>-->
+            <!--                        </el-upload>-->
+
+            <!--            <el-radio-group v-model="radio1" size="large">-->
+            <!--              <el-radio-button label="从本地上传" @click="dialogVisible = true"/>-->
+            <!--              <el-radio-button label="从git选择"/>-->
+            <!--            </el-radio-group>-->
+
+            <el-tabs type="border-card" class="border-card">
+              <el-tab-pane label="从本地上传">
+                <input
+                    ref="file"
+                    id="file_c"
+                    type="file"
+                    name="file"
+                    @change="handleChange($event)"
+                    webkitdirectory/>
+              </el-tab-pane>
+              <el-tab-pane label="从Git选择">
+                <el-table
+                    ref="singleTableRef"
+                    :data="tableData"
+                    height="220"
+                    style="width: 100%" max-height="250"
+                    highlight-current-row
+                    @current-change="handleCurrentChange"
+                >
+                  <el-table-column prop="repo_name" label="Repo_name" width="140"/>
+                  <el-table-column prop="repo_full_name" label="Repo_full_name" width="160"/>
+                  <el-table-column prop="repo_create_time" label="创建时间" width="140"/>
+                  <el-table-column prop="repo_update_time" label="更新时间" width="140"/>
+                </el-table>
+              </el-tab-pane>
+            </el-tabs>
+
           </el-form-item>
         </el-form>
+
+        <!--        服务器连接配置-->
         <el-form :model="webConnect" label-position="right" label-width="80px" v-if="active===1">
           <el-form-item label="用户名">
             <el-input placeholder="请输入ssh连接用户名" v-model="webConnect.user"></el-input>
@@ -51,6 +87,8 @@
             <el-input placeholder="请输入ssh连接端口" v-model="webConnect.port"></el-input>
           </el-form-item>
         </el-form>
+
+        <!--        额外选项-->
         <el-form :model="webExtra" label-position="right" label-width="80px" v-if="active===2">
           <el-form-item label="开启ssl" prop="delivery">
             <el-switch v-model="webExtra.ssl"></el-switch>
@@ -101,6 +139,7 @@
             <el-button type="primary">前往我的网站</el-button>
           </template>
         </el-result>
+
       </el-card>
     </el-row>
     <!--确认按钮-->
@@ -115,16 +154,32 @@
 
 </template>
 
-
 <script setup>
-import {ref, reactive, watch} from 'vue'
-import {UploadFilled} from "@element-plus/icons-vue";
+
+import {reactive, ref, watch, onMounted} from 'vue';
+import type, {ElTable} from 'element-plus';
+import axios from "axios";
+import {messageApi} from '../../api/test'
+// const files = require("@element-plus/icons-vue/dist/es/files.mjs");
+
+interface User {
+  repo_name: string;
+  repo_full_name: string;
+  repo_create_time: string;
+  repo_update_time: string;
+}
+const currentRow = ref()
+const handleCurrentChange = (val: User | undefined) => {
+  currentRow.value = val
+}
+
+
 
 const active = ref(0)
 const showPre = ref(false)
 const showNext = ref(true)
 const showSubmit = ref(false)
-
+// const radio1 = ref('从本地上传')
 const webConfig = reactive({
   projectType: ''
 })
@@ -137,6 +192,7 @@ const webExtra = reactive({
   ssl: false
 })
 
+
 watch(active, (active, prevActive) => {
   if (active !== 4) {
     showNext.value = active !== 2;
@@ -147,6 +203,16 @@ watch(active, (active, prevActive) => {
   }
   showSubmit.value = active === 2;
 })
+
+
+// onMounted(() => {
+//   console.log('Component is mounted!')
+//   var project_name = "hello"
+//   var params = Object.assign({project_name})
+//   var datas = messageApi.showMessage(params);
+//   console.log(datas, "-----")
+// })
+
 
 const next = () => {
   if (active.value < 3) active.value++
@@ -161,11 +227,87 @@ const submit = () => {
   showSubmit.value = false
 }
 
+const tableData: User[] = [
+  {
+    repo_name: 'Linux',
+    repo_full_name: 'Linux',
+    repo_create_time: '2021/6/1',
+    repo_update_time: '2022/2/3'
+  },
+  {
+    repo_name: 'Python',
+    repo_full_name: 'Python',
+    repo_create_time: '2021/6/1',
+    repo_update_time: '2022/2/3'
+  },
+  {
+    repo_name: 'Html',
+    repo_full_name: 'Html',
+    repo_create_time: '2021/6/1',
+    repo_update_time: '2022/2/3'
+  },
+  {
+    repo_name: 'CSS',
+    repo_full_name: 'CSS',
+    repo_create_time: '2021/6/1',
+    repo_update_time: '2022/2/3'
+  },
+  {
+    repo_name: 'Vue',
+    repo_full_name: 'Vue',
+    repo_create_time: '2021/6/1',
+    repo_update_time: '2022/2/3'
+  },
+  {
+    repo_name: 'Java',
+    repo_full_name: 'Java',
+    repo_create_time: '2021/6/1',
+    repo_update_time: '2022/2/3'
+  },
+  {
+    repo_name: 'Golang',
+    repo_full_name: 'Golang',
+    repo_create_time: '2021/6/1',
+    repo_update_time: '2022/2/3'
+  },
+]
+
+// const fileUpload = () => {
+//   let $files = $("files");
+//   if (files.length > 0) {
+//     let form = new FormData();
+//     let names = files[0].name.split(".");
+//     Object.defineProperty(files[0], 'name', {
+//       writable: true,//设置属性为可写
+//     })
+//     files[0].name = "指定文件名." + names[names.length - 1];
+//     form.append('file', files[0], files[0].name);
+//   }
+// }
+
+
+// const handleChange = (e) => {
+//   let files = e.target.files
+//   for (let i = 0; i < files.length; i++) {
+//     let formData = new FormData();
+//     formData.append(files[i].name, files[i])
+//   }
+//   axios.post("//106.55.18.128:8001/v1/deploy/upload/project", formData).then(
+//       (response) => {
+//         console.log("Response Success!", response.data);
+//       },
+//       (error) => {
+//         console.log("Response Failed!", error.message);
+//       }
+//   );
+// }
+
+
 </script>
 <style scoped lang="scss">
 
 .main-card {
-  width: 70%;
+  width: 100%;
   margin-top: 20px;
 
   .el-input {
@@ -191,4 +333,52 @@ const submit = () => {
 .step-button {
   margin-top: 12px
 }
+
+.border-card {
+  width: 96%;
+  height: 280px;
+}
+
+//input[type="file"]{
+//  display: none;
+//}
+//.file_tip{
+//  color: #BCBCBC;
+//  font-weight: 400;
+//  font-size: 16px;
+//}
+//.file_tip.active{
+//  display: inline-block;
+//}
+//.file{
+//  display: inline-block;
+//  overflow: hidden;
+//  width: 320px;
+//}
+//.file_bt{
+//  display: inline-block;
+//  color: #0099FF;
+//  font-size: 14px;
+//  font-weight: 400;
+//  border: 1px solid #0099FF;
+//  padding: 0px 39px;
+//  letter-spacing: 2px;
+//  line-height: normal;
+//  border-radius: 3px;
+//}
+//.file p {
+//  display: none;
+//  overflow: hidden;
+//  background-color: rgb(242,242,242);
+//  padding: 0 8px;
+//  line-height: 25px;
+//  border-radius: 1px;
+//}
+//.file p span:first-child{
+//  float: left;
+//}
+//.file p span:last-child{
+//  float: right;
+//}
+
 </style>

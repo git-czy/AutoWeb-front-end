@@ -45,6 +45,12 @@
     <el-row class="block">
       一个简单快速易用的WEB应用自动部署平台
     </el-row>
+
+    <el-row class="background-pic">
+      <el-col :span="4">
+        <img src="../../assets/filters-zero.svg" alt="background">
+      </el-col>
+    </el-row>
   </div>
 
 
@@ -53,7 +59,6 @@
 <script setup>
 
 import router from "../../router";
-import {watch} from "vue";
 
 
 function redirectAction() {
@@ -79,6 +84,16 @@ function redirectAbout() {
 .block {
   margin-top: 20px;
   margin-bottom: 20px;
+}
+
+.background-pic {
+  margin-top: 20px;
+  margin-right: 450px;
+}
+
+//调整图片大小
+::v-deep img {
+  width: 1400%;
 }
 
 .center {
