@@ -1,6 +1,7 @@
 <template>
+  <div class="index">
   <el-container>
-    <el-header>
+    <el-header  class="header-parent-class">
       <el-row>
         <el-col :span="22">
           <el-menu
@@ -27,15 +28,16 @@
         </el-col>
       </el-row>
     </el-header>
-    <el-main class="main">
+    <el-main class="main-parent-class">
       <router-view></router-view>
     </el-main>
-    <el-footer>
+    <el-footer class="footer-div">
       <!--      <slot name="footer">-->
       <!--      </slot>-->
       Copyright © 2022 male. All rights reserved.
     </el-footer>
   </el-container>
+  </div>
 </template>
 
 <script setup>
@@ -79,10 +81,16 @@ function login() {
   padding: 0;
 }
 
-.main {
+.el-container {
+  min-height: 100vh;
+}
+
+.main-parent-class {
   display: flex;
   justify-content: center;
   padding-bottom: 30px;
+  height: 100%;
+  overflow: hidden
 }
 
 .el-header, .el-footer {
@@ -94,6 +102,9 @@ function login() {
 
 .el-footer{
   margin-bottom: 0;
+  width: 100%;
+  align-items: center;
+
 }
 
 .user-part {
