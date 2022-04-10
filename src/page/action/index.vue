@@ -71,7 +71,7 @@
                     <template #default="scope">
                       <el-dropdown>
                         <span class="el-dropdown-link">
-                          Dropdown List
+                          {{ scope.row.branches[0] }}
                           <el-icon class="el-icon--right">
                             <arrow-down/>
                           </el-icon>
@@ -179,7 +179,7 @@
 <script setup>
 
 import {reactive, ref, watch} from 'vue';
-
+import {ArrowDown} from "@element-plus/icons-vue";
 
 const currentRow = ref()
 
@@ -242,48 +242,17 @@ const tableData = [
   {
     repo_name: 'Linux',
     repo_full_name: 'Linux',
-    branches: "master",
+    branches: ["master", "czy"],
     repo_create_time: '2021/6/1',
     repo_update_time: '2022/2/3'
   },
   {
     repo_name: 'Python',
     repo_full_name: 'Python',
-    branches: "master",
+    branches: ["ss", "czy"],
     repo_create_time: '2021/6/1',
     repo_update_time: '2022/2/3'
-  },
-  {
-    repo_name: 'Html',
-    repo_full_name: 'Html',
-    branches: "master",
-    repo_create_time: '2021/6/1',
-    repo_update_time: '2022/2/3'
-  },
-  {
-    repo_name: 'CSS',
-    repo_full_name: 'CSS',
-    repo_create_time: '2021/6/1',
-    repo_update_time: '2022/2/3'
-  },
-  {
-    repo_name: 'Vue',
-    repo_full_name: 'Vue',
-    repo_create_time: '2021/6/1',
-    repo_update_time: '2022/2/3'
-  },
-  {
-    repo_name: 'Java',
-    repo_full_name: 'Java',
-    repo_create_time: '2021/6/1',
-    repo_update_time: '2022/2/3'
-  },
-  {
-    repo_name: 'Golang',
-    repo_full_name: 'Golang',
-    repo_create_time: '2021/6/1',
-    repo_update_time: '2022/2/3'
-  },
+  }
 ]
 
 const handleCurrentChange = (currentRow, _) => {
