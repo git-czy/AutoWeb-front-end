@@ -47,13 +47,7 @@
 
             <el-tabs type="border-card" class="border-card">
               <el-tab-pane label="从本地上传">
-                <input
-                    ref="file"
-                    id="file_c"
-                    type="file"
-                    name="file"
-                    @change="handleChange($event)"
-                    webkitdirectory/>
+                <input ref="file" type="file" name="file" @change="handleFileChange" webkitdirectory/>
               </el-tab-pane>
               <el-tab-pane label="从Git选择">
                 <el-table
@@ -66,26 +60,19 @@
                 >
                   <el-table-column type="index"/>
                   <el-table-column v-if="false" prop="repo_name" label="Repo_name"/>
+                  <el-table-column v-if="false" prop="branch" label="branch"/>
                   <el-table-column prop="repo_full_name" label="仓库名称"/>
                   <el-table-column prop="branches" label="分支">
                     <template #default="scope">
-                      <el-dropdown>
-                        <span class="el-dropdown-link">
-                          {{ scope.row.branches[0] }}
-                          <el-icon class="el-icon--right">
-                            <arrow-down/>
-                          </el-icon>
-                        </span>
-                        <template #dropdown>
-                          <el-dropdown-menu>
-                            <el-dropdown-item>Action 1</el-dropdown-item>
-                            <el-dropdown-item>Action 2</el-dropdown-item>
-                            <el-dropdown-item>Action 3</el-dropdown-item>
-                            <el-dropdown-item disabled>Action 4</el-dropdown-item>
-                            <el-dropdown-item divided>Action 5</el-dropdown-item>
-                          </el-dropdown-menu>
-                        </template>
-                      </el-dropdown>
+                      <el-select v-model="scope.row.branch" class="m-2" placeholder="Select"
+                                 :disabled="scope.row.branches.length===1">
+                        <el-option
+                            v-for="item in scope.row.branches"
+                            :key="item.value"
+                            :label="item.value"
+                            :value="item.value"
+                        />
+                      </el-select>
                     </template>
                   </el-table-column>
                   <el-table-column prop="repo_create_time" label="创建时间"/>
@@ -180,6 +167,7 @@
 
 import {reactive, ref, watch} from 'vue';
 import {ArrowDown} from "@element-plus/icons-vue";
+import axios from "axios";
 
 const currentRow = ref()
 
@@ -189,7 +177,7 @@ const showPre = ref(false)
 const showNext = ref(true)
 const showSubmit = ref(false)
 const singleTableRef = ref(null)
-
+const file = ref(null)
 
 const webConfig = reactive({
   projectType: ''
@@ -215,16 +203,6 @@ watch(active, (active, prevActive) => {
   showSubmit.value = active === 2;
 })
 
-
-// onMounted(() => {
-//   console.log('Component is mounted!')
-//   var project_name = "hello"
-//   var params = Object.assign({project_name})
-//   var datas = messageApi.showMessage(params);
-//   console.log(datas, "-----")
-// })
-
-
 const next = () => {
   if (active.value < 3) active.value++
 }
@@ -242,16 +220,28 @@ const tableData = [
   {
     repo_name: 'Linux',
     repo_full_name: 'Linux',
-    branches: ["master", "czy"],
+    branches: [
+      {
+        value: "master"
+      },
+    ],
     repo_create_time: '2021/6/1',
-    repo_update_time: '2022/2/3'
+    repo_update_time: '2022/2/3',
+    branch: 'master'
   },
   {
     repo_name: 'Python',
     repo_full_name: 'Python',
-    branches: ["ss", "czy"],
+    branches: [{
+      value: "cz"
+    },
+      {
+        value: "zxc"
+      }],
     repo_create_time: '2021/6/1',
-    repo_update_time: '2022/2/3'
+    repo_update_time: '2022/2/3',
+    branch: 'cz'
+
   }
 ]
 
@@ -259,40 +249,36 @@ const handleCurrentChange = (currentRow, _) => {
   console.log(currentRow["repo_name"])
 }
 
-
-// const fileUpload = () => {
-//   let $files = $("files");
-//   if (files.length > 0) {
-//     let form = new FormData();
-//     let names = files[0].name.split(".");
-//     Object.defineProperty(files[0], 'name', {
-//       writable: true,//设置属性为可写
-//     })
-//     files[0].name = "指定文件名." + names[names.length - 1];
-//     form.append('file', files[0], files[0].name);
-//   }
-// }
-
-
-// const handleChange = (e) => {
-//   let files = e.target.files
-//   for (let i = 0; i < files.length; i++) {
-//     let formData = new FormData();
-//     formData.append(files[i].name, files[i])
-//   }
-//   axios.post("//106.55.18.128:8001/v1/deploy/upload/project", formData).then(
-//       (response) => {
-//         console.log("Response Success!", response.data);
-//       },
-//       (error) => {
-//         console.log("Response Failed!", error.message);
-//       }
-//   );
-// }
+const handleFileChange = () => {
+  let files = file.value.files
+  let formData = new FormData();
+  for (const file of files) {
+    Object.defineProperty(file, 'name', {
+      writable: true,//设置属性为可写
+    })
+    file.name = file.webkitRelativePath
+    formData.append("project_files", file)
+  }
+  axios.post("http://106.55.18.128:8001/v1/deploy/upload/project?project_name=123", formData, {
+    headers: {
+      'Content-Type': "multipart/form-data"
+    }
+  }).then(
+      (response) => {
+        console.log("Response Success!", response.data);
+      },
+      (error) => {
+        console.log("Response Failed!", error.message);
+      }
+  );
+}
 
 
 </script>
 <style scoped lang="scss">
+.el-container {
+  min-height: 100vh;
+}
 
 .main-card {
   width: 100%;
