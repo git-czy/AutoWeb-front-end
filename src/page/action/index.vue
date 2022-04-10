@@ -17,7 +17,7 @@
         <el-form :model="webConfig" label-position="right" label-width="80px" v-if="active===0">
           <el-form-item label="项目类型">
             <el-select v-model="webConfig.projectType" placeholder="请选择项目类型">
-              <el-option label="Python" value="python"></el-option>
+              <el-option label="Vue" value="vue"></el-option>
               <!--                  <el-option label="Java" value="java"></el-option>-->
             </el-select>
           </el-form-item>
@@ -64,10 +64,32 @@
                     highlight-current-row
                     @current-change="handleCurrentChange"
                 >
-                  <el-table-column prop="repo_name" label="Repo_name" width="140"/>
-                  <el-table-column prop="repo_full_name" label="Repo_full_name" width="160"/>
-                  <el-table-column prop="repo_create_time" label="创建时间" width="140"/>
-                  <el-table-column prop="repo_update_time" label="更新时间" width="140"/>
+                  <el-table-column type="index"/>
+                  <el-table-column v-if="false" prop="repo_name" label="Repo_name"/>
+                  <el-table-column prop="repo_full_name" label="仓库名称"/>
+                  <el-table-column prop="branches" label="分支">
+                    <template #default="scope">
+                      <el-dropdown>
+                        <span class="el-dropdown-link">
+                          Dropdown List
+                          <el-icon class="el-icon--right">
+                            <arrow-down/>
+                          </el-icon>
+                        </span>
+                        <template #dropdown>
+                          <el-dropdown-menu>
+                            <el-dropdown-item>Action 1</el-dropdown-item>
+                            <el-dropdown-item>Action 2</el-dropdown-item>
+                            <el-dropdown-item>Action 3</el-dropdown-item>
+                            <el-dropdown-item disabled>Action 4</el-dropdown-item>
+                            <el-dropdown-item divided>Action 5</el-dropdown-item>
+                          </el-dropdown-menu>
+                        </template>
+                      </el-dropdown>
+                    </template>
+                  </el-table-column>
+                  <el-table-column prop="repo_create_time" label="创建时间"/>
+                  <el-table-column prop="repo_update_time" label="更新时间"/>
                 </el-table>
               </el-tab-pane>
             </el-tabs>
@@ -156,30 +178,19 @@
 
 <script setup>
 
-import {reactive, ref, watch, onMounted} from 'vue';
-import type, {ElTable} from 'element-plus';
-import axios from "axios";
-import {messageApi} from '../../api/test'
-// const files = require("@element-plus/icons-vue/dist/es/files.mjs");
+import {reactive, ref, watch} from 'vue';
 
-interface User {
-  repo_name: string;
-  repo_full_name: string;
-  repo_create_time: string;
-  repo_update_time: string;
-}
+
 const currentRow = ref()
-const handleCurrentChange = (val: User | undefined) => {
-  currentRow.value = val
-}
-
 
 
 const active = ref(0)
 const showPre = ref(false)
 const showNext = ref(true)
 const showSubmit = ref(false)
-// const radio1 = ref('从本地上传')
+const singleTableRef = ref(null)
+
+
 const webConfig = reactive({
   projectType: ''
 })
@@ -227,22 +238,25 @@ const submit = () => {
   showSubmit.value = false
 }
 
-const tableData: User[] = [
+const tableData = [
   {
     repo_name: 'Linux',
     repo_full_name: 'Linux',
+    branches: "master",
     repo_create_time: '2021/6/1',
     repo_update_time: '2022/2/3'
   },
   {
     repo_name: 'Python',
     repo_full_name: 'Python',
+    branches: "master",
     repo_create_time: '2021/6/1',
     repo_update_time: '2022/2/3'
   },
   {
     repo_name: 'Html',
     repo_full_name: 'Html',
+    branches: "master",
     repo_create_time: '2021/6/1',
     repo_update_time: '2022/2/3'
   },
@@ -271,6 +285,11 @@ const tableData: User[] = [
     repo_update_time: '2022/2/3'
   },
 ]
+
+const handleCurrentChange = (currentRow, _) => {
+  console.log(currentRow["repo_name"])
+}
+
 
 // const fileUpload = () => {
 //   let $files = $("files");

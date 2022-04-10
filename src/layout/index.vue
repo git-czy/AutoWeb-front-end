@@ -19,7 +19,9 @@
         </el-col>
         <el-col :span="2" class="user-part">
           <div class="user">
-            <el-avatar size="default" :icon="UserFilled"></el-avatar>
+            <el-avatar size="default" v-if="git_user_avatar!==''" :src="git_user_avatar"></el-avatar>
+            <el-avatar size="default" v-else icon="UserFilled"></el-avatar>
+            <p v-if="git_user_name!==''">{{ git_user_name }}</p>
             <el-button type="text" @click="login" style="color: #f6f6f6">登录</el-button>
           </div>
         </el-col>
@@ -39,15 +41,30 @@
 <script setup>
 import {UserFilled} from "@element-plus/icons-vue";
 import {useRoute} from "vue-router";
-import {ref, watch} from "vue";
-// import{} from ""
+import {watch, ref} from "vue";
 
 const route = useRoute()
-let active = ref('home')
+const active = ref('home')
+
+let git_user_name = ""
+let git_user_avatar = ""
 
 watch(() => route.path, (currentRoute, prevRoute) => {
   active.value = currentRoute.replace('/', '')
 })
+
+// 获取git授权重定向服务器发回的用户信息
+const userinfo = route.query
+if (userinfo != null) {
+  if (userinfo.hasOwnProperty("git_user_avatar")) {
+    git_user_avatar = userinfo["git_user_avatar"]
+    console.log(git_user_avatar)
+  }
+  if (userinfo.hasOwnProperty("git_user_name")) {
+
+    git_user_name = userinfo["git_user_name"]
+  }
+}
 
 
 function login() {
@@ -81,7 +98,6 @@ function login() {
 
 .user-part {
   border-bottom: 1px solid #e6e6e6;
-  background-color: #545c64;
 
   .el-button {
     margin-left: 20px;
