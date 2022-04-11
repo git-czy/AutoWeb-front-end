@@ -45,29 +45,30 @@
             <!--              <el-radio-button label="从git选择"/>-->
             <!--            </el-radio-group>-->
 
-            <el-tabs type="border-card" class="border-card">
-              <el-tab-pane label="从本地上传">
+            <el-tabs type="border-card" class="border-card" v-model="tabActiveName">
+              <el-tab-pane label="从本地上传" name="local">
                 <input ref="file" type="file" name="file" @change="handleFileChange" webkitdirectory/>
               </el-tab-pane>
-              <el-tab-pane label="从Git选择">
+              <el-tab-pane label="从Git选择" name="git">
                 <el-table
                     ref="singleTableRef"
                     :data="tableData"
                     height="220"
                     style="width: 100%" max-height="250"
                     highlight-current-row
+                    empty-text="请先登陆！"
                     @current-change="handleCurrentChange"
                 >
                   <el-table-column type="index"/>
                   <el-table-column v-if="false" prop="repo_name" label="Repo_name"/>
                   <el-table-column v-if="false" prop="branch" label="branch"/>
                   <el-table-column prop="repo_full_name" label="仓库名称"/>
-                  <el-table-column prop="branches" label="分支">
+                  <el-table-column prop="repo_branches" label="分支">
                     <template #default="scope">
                       <el-select v-model="scope.row.branch" class="m-2" placeholder="Select"
-                                 :disabled="scope.row.branches.length===1">
+                                 :disabled="scope.row.repo_branches.length===1">
                         <el-option
-                            v-for="item in scope.row.branches"
+                            v-for="item in scope.row.repo_branches"
                             :key="item.value"
                             :label="item.value"
                             :value="item.value"
@@ -168,6 +169,7 @@
 import {reactive, ref, watch} from 'vue';
 import {ArrowDown} from "@element-plus/icons-vue";
 import axios from "axios";
+import {GET_REPOS, UPLOAD_PROJECT} from "../../api";
 
 const currentRow = ref()
 
@@ -216,42 +218,63 @@ const submit = () => {
   showSubmit.value = false
 }
 
-const tableData = [
-  {
-    repo_name: 'Linux',
-    repo_full_name: 'Linux',
-    branches: [
-      {
-        value: "master"
-      },
-    ],
-    repo_create_time: '2021/6/1',
-    repo_update_time: '2022/2/3',
-    branch: 'master'
-  },
-  {
-    repo_name: 'Python',
-    repo_full_name: 'Python',
-    branches: [{
-      value: "cz"
-    },
-      {
-        value: "zxc"
-      }],
-    repo_create_time: '2021/6/1',
-    repo_update_time: '2022/2/3',
-    branch: 'cz'
+// const tableData = [
+//   {
+//     repo_name: 'Linux',
+//     repo_full_name: 'Linux',
+//     repo_branches: [
+//       {
+//         value: "master"
+//       },
+//     ],
+//     repo_create_time: '2021/6/1',
+//     repo_update_time: '2022/2/3',
+//     branch: 'master'
+//   },
+//   {
+//     repo_name: 'Python',
+//     repo_full_name: 'Python',
+//     repo_branches: [
+//       {
+//         value: "cz"
+//       },
+//       {
+//         value: "zxc"
+//       }
+//     ],
+//     repo_create_time: '2021/6/1',
+//     repo_update_time: '2022/2/3',
+//     branch: 'cz'
+//
+//   }
+// ]
 
+let tableData = reactive([])
+
+axios.defaults.withCredentials = true
+
+const tabActiveName = ref('local')
+watch(tabActiveName, async (tabName, prevActive) => {
+  console.log(tabName)
+  if (tabName === 'git' && tableData.length === 0) {
+    let res = await GET_REPOS()
+    tableData.push(...res)
+    console.log(tableData)
   }
-]
+})
+
 
 const handleCurrentChange = (currentRow, _) => {
   console.log(currentRow["repo_name"])
 }
 
+// 本地上传文件
 const handleFileChange = () => {
   let files = file.value.files
+  console.log(file)
   let formData = new FormData();
+  let projectName = files[0].webkitRelativePath.split('/')[0];
+
   for (const file of files) {
     Object.defineProperty(file, 'name', {
       writable: true,//设置属性为可写
@@ -259,18 +282,7 @@ const handleFileChange = () => {
     file.name = file.webkitRelativePath
     formData.append("project_files", file)
   }
-  axios.post("http://106.55.18.128:8001/v1/deploy/upload/project?project_name=123", formData, {
-    headers: {
-      'Content-Type': "multipart/form-data"
-    }
-  }).then(
-      (response) => {
-        console.log("Response Success!", response.data);
-      },
-      (error) => {
-        console.log("Response Failed!", error.message);
-      }
-  );
+  UPLOAD_PROJECT(projectName, formData)
 }
 
 

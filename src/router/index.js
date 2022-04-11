@@ -26,6 +26,19 @@ const routes = [
         ]
     },
 
+    {
+        path: "/home",
+        redirect: {name: '/home'},
+    },
+    {
+        path: "/action",
+        redirect: {name: '/action'},
+    },
+    {
+        path: "/about",
+        redirect: {name: '/about'},
+    },
+
 ];
 
 // 导出路由

@@ -23,7 +23,7 @@
             <el-avatar size="default" v-if="git_user_avatar!==''" :src="git_user_avatar"></el-avatar>
             <el-avatar size="default" v-else icon="UserFilled"></el-avatar>
             <p v-if="git_user_name!==''">{{ git_user_name }}</p>
-            <el-button type="text" @click="login" style="color: #f6f6f6">登录</el-button>
+            <el-button v-else type="text" @click="login" style="color: #f6f6f6">登录</el-button>
           </div>
         </el-col>
       </el-row>
